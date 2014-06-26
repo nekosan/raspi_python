@@ -20,12 +20,26 @@ class Mpu9150:
         self.address = 0x68
         self.acc = [0, 0, 0]
         self.gyr = [0, 0, 0]
+        self.gyr_offset = [0.0, 0.0, 0.0]
 
         self.write(0x6b, 0x00)
         self.write(0x37, 0x02)
         self.write(0x1a, 0x02)
 
-    def getdata(self):
+    def set_gyr_offset(self):
+        self.gyr_offset[0] = self.read(0x43) << 8
+        self.gyr_offset[0] += self.read(0x44)
+        self.gyr_offset[1] = self.read(0x45) << 8
+        self.gyr_offset[1] += self.read(0x46)
+        self.gyr_offset[2] = self.read(0x47) << 8
+        self.gyr_offset[2] += self.read(0x48)
+        for i in range(len(self.gyr_offset)) :
+            if self.gyr_offset[i] >= 32768:
+                self.gyr_offset[i] -= 65536
+            self.gyr_offset[i] = float(self.gyr_offset[i])
+
+
+    def getdata_acc(self):
         self.acc[0] = self.read(0x3b) << 8
         self.acc[0] += self.read(0x3c)
         self.acc[1] = self.read(0x3d) << 8
@@ -37,6 +51,7 @@ class Mpu9150:
                 self.acc[i] -= 65536
             self.acc[i] = float(self.acc[i])
 
+    def getdata_gyr(self):
         self.gyr[0] = self.read(0x43) << 8
         self.gyr[0] += self.read(0x44)
         self.gyr[1] = self.read(0x45) << 8
@@ -46,7 +61,7 @@ class Mpu9150:
         for i in range(len(self.gyr)) :
             if self.gyr[i] >= 32768:
                 self.gyr[i] -= 65536
-            self.gyr[i] = float(self.gyr[i])
+            self.gyr[i] = float(self.gyr[i]) - self.gyr_offset[i]
 
     def calc_acc_deg(self):
         acc_deg = []
@@ -61,8 +76,11 @@ class Mpu9150:
 if __name__ == '__main__':
     mpu = Mpu9150()
 
+    mpu.set_gyr_offset()
+    print 'Get gyro offset value.'
     while True:
-        mpu.getdata()
+        mpu.getdata_acc()
+        mpu.getdata_gyr()
         for i in range(3):
             print str(mpu.acc[i]) + ' ' + str(mpu.gyr[i])
         print mpu.calc_acc_deg()
