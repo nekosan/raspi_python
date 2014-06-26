@@ -32,18 +32,18 @@ class Mpu9150:
         self.acc[1] += self.read(0x3e)
         self.acc[2] = self.read(0x3f) << 8
         self.acc[2] += self.read(0x40)
-    for i in range(len(self.acc)) :
+        for i in range(len(self.acc)) :
             if self.acc[i] >= 32768:
                 self.acc[i] -= 65536
             self.acc[i] = float(self.acc[i])
 
-        self.gyr[0] = self.read(0x41) << 8
-        self.gyr[0] += self.read(0x42)
-        self.gyr[1] = self.read(0x43) << 8
-        self.gyr[1] += self.read(0x44)
-        self.gyr[2] = self.read(0x45) << 8
-        self.gyr[2] += self.read(0x46)
-    for i in range(len(self.gyr)) :
+        self.gyr[0] = self.read(0x43) << 8
+        self.gyr[0] += self.read(0x44)
+        self.gyr[1] = self.read(0x45) << 8
+        self.gyr[1] += self.read(0x46)
+        self.gyr[2] = self.read(0x47) << 8
+        self.gyr[2] += self.read(0x48)
+        for i in range(len(self.gyr)) :
             if self.gyr[i] >= 32768:
                 self.gyr[i] -= 65536
             self.gyr[i] = float(self.gyr[i])
