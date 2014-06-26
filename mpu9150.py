@@ -57,5 +57,5 @@ if __name__ == '__main__':
 
     while True:
         mpu.getdata()
-        print mpu.acc[0]
+        print mpu.calc_acc_deg()
         time.sleep(1.0)
