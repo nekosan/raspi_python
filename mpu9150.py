@@ -81,6 +81,9 @@ class Mpu9150:
         self.getdata_acc()
         self.getdata_gyr()
         acc_deg = self.calc_acc_deg()
+        print '-----------------------'
+        print acc_deg
+        print self.out_before
         out = []
         for i in range(2):
             out.append(self.complementary_filter(self.out_before[i], acc_deg[i], self.gyr[i]))
