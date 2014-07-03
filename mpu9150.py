@@ -12,7 +12,7 @@ class Mpu9150:
 
     def read(self, reg):
         value = self.bus.read_byte_data(self.address, reg)
-        return value 
+        return value
 
     def __init__(self):
         self.bus = smbus.SMBus(1)
@@ -21,6 +21,10 @@ class Mpu9150:
         self.acc = [0, 0, 0]
         self.gyr = [0, 0, 0]
         self.gyr_offset = [0.0, 0.0, 0.0]
+        self.out_before = [0.0, 0.0, 0.0]
+        self.period = 0.1 #Unit : sec
+        T = 0.5
+        self.complementary_param = (T / self.period) / (1 + (T / self.period))
 
         self.write(0x6b, 0x00)
         self.write(0x37, 0x02)
@@ -73,15 +77,25 @@ class Mpu9150:
         else :
             return acc_deg
 
+    def get_tilt(self):
+        self.getdata_acc()
+        self.getdata_gyr()
+        self.calc_acc_deg()
+        out = []
+        for i in range(3):
+            out.append(self.complementary_filter(self.out_before[i], self.acc[i], self.gyr[i]))
+            self.out_before[i] = out[i]
+        return out
+
+    def complementary_filter(self, out_before, acc_value, gyr_value):
+        return self.complementary_param * (out_before + gyr_valie * self.period) + (1 - self.complementary_param) * acc_value
+
 if __name__ == '__main__':
     mpu = Mpu9150()
 
     mpu.set_gyr_offset()
     print 'Get gyro offset value.'
     while True:
-        mpu.getdata_acc()
-        mpu.getdata_gyr()
-        for i in range(3):
-            print str(mpu.acc[i]) + ' ' + str(mpu.gyr[i])
-        print mpu.calc_acc_deg()
-        time.sleep(0.2)
+        result = mpu.get_tilt()
+        print result
+        time.sleep(0.1)
