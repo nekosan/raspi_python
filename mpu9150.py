@@ -29,6 +29,7 @@ class Mpu9150:
         self.write(0x6b, 0x00)
         self.write(0x37, 0x02)
         self.write(0x1a, 0x02)
+        self.write(0x1b, 0x08)
 
     def set_gyr_offset(self):
         self.gyr_offset[0] = self.read(0x43) << 8
@@ -66,6 +67,7 @@ class Mpu9150:
             if self.gyr[i] >= 32768:
                 self.gyr[i] -= 65536
             self.gyr[i] = float(self.gyr[i]) - self.gyr_offset[i]
+            self.gyr[i] = (self.gyr[i] / 65535) * 500 * self.period
 
     def calc_acc_deg(self):
         acc_deg = []
