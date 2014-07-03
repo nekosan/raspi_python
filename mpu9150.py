@@ -80,15 +80,15 @@ class Mpu9150:
     def get_tilt(self):
         self.getdata_acc()
         self.getdata_gyr()
-        self.calc_acc_deg()
+        acc_deg = self.calc_acc_deg()
         out = []
-        for i in range(3):
-            out.append(self.complementary_filter(self.out_before[i], self.acc[i], self.gyr[i]))
+        for i in range(2):
+            out.append(self.complementary_filter(self.out_before[i], acc_deg[i], self.gyr[i]))
             self.out_before[i] = out[i]
         return out
 
     def complementary_filter(self, out_before, acc_value, gyr_value):
-        return self.complementary_param * (out_before + gyr_valie * self.period) + (1 - self.complementary_param) * acc_value
+        return self.complementary_param * (out_before + gyr_value * self.period) + (1 - self.complementary_param) * acc_value
 
 if __name__ == '__main__':
     mpu = Mpu9150()
